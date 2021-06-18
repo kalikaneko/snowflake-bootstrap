@@ -63,7 +63,7 @@ func run() error {
 	certs := x509.NewCertPool()
 	certs.AppendCertsFromPEM(CaCert)
 
-	client := &http.Client{
+	apiClient := &http.Client{
 		Transport: &http.Transport{
 			TLSClientConfig: &tls.Config{
 				RootCAs: certs,
@@ -73,8 +73,18 @@ func run() error {
 		Timeout: time.Minute * 5,
 	}
 
-	fetchFile(client, "https://api.black.riseup.net/3/config/eip-service.json")
-	fetchFile(client, "https://api.black.riseup.net/3/cert")
+	regClient := &http.Client{
+		Transport: &http.Transport{
+			DialContext: dialer.DialContext,
+		},
+		Timeout: time.Minute * 5,
+	}
+
+	fetchFile(apiClient, "https://api.black.riseup.net/3/config/eip-service.json")
+	fetchFile(apiClient, "https://api.black.riseup.net/3/cert")
+	fetchFile(regClient, "https://snowflake-broker.torproject.net/debug")
+	fetchFile(regClient, "https://wtfismyip.com/json")
+
 	return nil
 }
 
